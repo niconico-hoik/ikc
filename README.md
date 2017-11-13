@@ -1,5 +1,5 @@
+![](https://raw.githubusercontent.com/kthjm/ikc-nicohoi/master/dist/white/rogo/1200_630_opengraph.png)
 # inkschin nicohoi
-
 [Google Maps](https://goo.gl/maps/n3TEr6PEbs82)
 
 ## scripts

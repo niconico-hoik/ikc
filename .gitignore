@@ -1,7 +1,15 @@
 dist/trans/
-dist/pdf/
 dist/print/
 dist/merge/
+dist/pdf/
+
+# except [rogo].svg
+dist/white/web/
+dist/white/flyer/
+dist/white/letter/
+dist/white/others/
+dist/white/oneday/
+dist/white/business_card/
 
 # Logs
 logs
