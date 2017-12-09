@@ -13,7 +13,7 @@
     "all": "run-s png:all pdf:all"
   },
   "devDependencies": {
-    "chin": "^2.1.0",
+    "chin": "^2.1.2",
     "chin-plugins-inkscape": "https://github.com/kthjm/chin-plugins-inkscape",
     "npm-run-all": "^4.0.2"
   }
