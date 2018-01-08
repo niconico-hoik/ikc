@@ -6,10 +6,10 @@
     "png:white": "yarn pipe white",
     "png:all": "run-s png:trans png:white",
     "png": "yarn png:white",
-    "pdf:single": "yarn pipe pdf",
+    "pdf:normal": "yarn pipe pdf",
     "pdf:print": "yarn pipe print",
-    "pdf:all": "run-s pdf:single pdf:print",
-    "pdf": "yarn pdf:single",
+    "pdf:all": "run-s pdf:normal pdf:print",
+    "pdf": "yarn pdf:normal",
     "all": "run-s png:all pdf:all"
   },
   "devDependencies": {

@@ -20,8 +20,12 @@
       "svg": ["InkPdf", null, "stream"]
     },
     "weirs": [
-      ["./merge", ["InkPdfMerge", null, "stream"]],
-      ["./printable/pamphlet", ["InkPdfMerge", null, "stream"]]
+      ["./merge", {
+        "svg": ["InkPdfMerge", null, "stream"]
+      }],
+      ["./printable/pamphlet", {
+        "svg": ["InkPdfMerge", null, "stream"]
+      }]
     ]
   },
   "print": {
@@ -31,7 +35,9 @@
       "svg": ["InkPdfPrint", null, "stream"]
     },
     "weirs": [
-      ["./pamphlet", ["InkPdfMergePrint", null, "stream"]]
+      ["./pamphlet", {
+        "svg": ["InkPdfMergePrint", null, "stream"]
+      }]
     ]
   }
 }
