@@ -12,7 +12,7 @@ const config = ({ outjoined, background }) => ({
   processors: {
     svg: inkscape(format, {
       dpi: 192,
-      background: '#ffffff'
+      background
     })
   }
 })
