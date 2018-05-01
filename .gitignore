@@ -1,10 +1,4 @@
-dist/pdf/
-dist/printed/
-dist/trans/
-dist/white/document/
-dist/white/flyer/
-dist/white/merge/
-dist/white/printable/
+.dist/
 
 # Logs
 logs
