@@ -1,16 +1,20 @@
 {
   "license": "MIT",
   "scripts": {
-    "pipe": "chin -r babel-register",
-    "png": "yarn pipe -c .chin/config.png.js",
-    "png:white": "cross-env CHIN_ENV=WHITE yarn png",
-    "png:all": "run-s png png:white",
-    "pdf": "yarn pipe -c .chin/config.pdf.js",
-    "pdf:print": "yarn pipe -c .chin/config.print.js",
-    "pdf:all": "run-s pdf pdf:print",
-    "both": "yarn pipe -c .chin/config.both.js",
-    "both:pdf": "cross-env CHIN_ENV=PDF yarn both",
+    "build": "chin -c -r babel-register",
+
+    "png": "cross-env CHIN_ENV=PNG yarn build",
+    "png:trans": "cross-env CHIN_ENV=PNG:TRANS yarn build",
+    "png:all": "run-s png png:trans",
+
+    "pdf": "cross-env CHIN_ENV=PDF yarn build",
+    "print": "cross-env CHIN_ENV=PRINT yarn build",
+    "pdf:all": "run-s pdf print",
+
+    "both": "cross-env CHIN_ENV=BOTH yarn build",
+    "both:pdf": "cross-env CHIN_ENV=BOTH:PDF yarn build",
     "both:all": "run-s both both:pdf",
+
     "all": "run-s png:all pdf:all both:all"
   },
   "devDependencies": {
