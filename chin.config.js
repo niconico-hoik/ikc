@@ -5,6 +5,27 @@ const put = 'source'
 const out = '.dist'
 const dpi = 192
 
+const pngWhiteExt = inkscape('png', { dpi, background: '#ffffff' })
+const pngTransExt = inkscape('png', { dpi })
+const pdfExt = inkscape('pdf')
+const printExt = inkscape('pdf', { area: 'drawing' })
+
+const merges = [
+  'pamphlet',
+  'recruit',
+  'summer'
+]
+.map(dirname =>
+  Object.assign({ dirname }, inkscapePdfMerge())
+)
+
+const pringMerges = [
+  'pamphlet'
+]
+.map(dirname =>
+  Object.assign({ dirname }, inkscapePdfMerge({ area: 'drawing' }))
+)
+
 const parseExBase = (filepath) => {
   const { root, dir, name, ext } = parse(filepath)
   return { root, dir, name, ext }
@@ -25,110 +46,71 @@ const sort = (filepaths) =>
   })
   .map(format)
 
-const configs = {
-
-  'PNG': (query) => Object.assign(
-    { put: `${put}/png` },
-    query === 'TRANS'
-    ? {
-      out: `${out}/png.trans`,
-      clean: true,
-      processors: { svg: inkscape('png', { dpi }) }
-    }
-    : {
-      out: `${out}/png`,
-      processors: { svg: inkscape('png', { dpi, background: '#ffffff' }) }
-    }
-  ),
-
-  'BOTH': (query) => Object.assign(
-    { put: `${put}/both` },
-    query === 'PDF'
-    ? {
-      out: `${out}/pdf`,
-      processors: { svg: inkscape('pdf', { dpi })}
-    }
-    : {
-      out: `${out}/png`,
-      processors: { svg: inkscape('png', { dpi, background: '#ffffff' }) }
-    }
-  ),
-
-  'PDF': () => {
-
-    const putdir = `${put}/pdf`
-    const outdir = `${out}/pdf`
-
-    const merges = [
-      'pamphlet',
-      'recruit',
-      'summer'
-    ]
-    .map(dirname => {
-      const { ext, dist } = inkscapePdfMerge()
-      const tuple = [`merge/${dirname}`, { svg: ext }]
-      const after = () => dist(`${outdir}/${dirname}.pdf`, { sort })
-      return { tuple, after }
-    })
-
-    const processors = [].concat(
-      merges.map(({ tuple }) => tuple),
-      [['', { svg: inkscape('pdf') }]]
-    )
-
-    const after = () => Promise.all(
-      merges.map(({ after }) => after())
-    )
-
-    return { put: putdir, out: outdir, processors, after }
-  },
-
-  'PRINT': () => {
-
-    const area = 'drawing'
-    const pdfdir = `${put}/pdf`
-    const outdir = `${out}/pdf.print`
-
-    const merges = [
-      'pamphlet'
-    ]
-    .map(dirname => {
-      const { ext, dist } = inkscapePdfMerge({ area })
-      const tuple = [`merge/${dirname}`, { svg: ext }]
-      const after = () => dist(`${outdir}/${dirname}.pdf`, { sort })
-      return { tuple, after }
-    })
-
-    const ignored = [
-      `${pdfdir}/recruit.svg`,
-      `${pdfdir}/term.svg`,
-      `${pdfdir}/vaccination.svg`,
-      `${pdfdir}/merge/recruit`,
-      `${pdfdir}/merge/summer`
-    ]
-    .filter(dirpath =>
-      !merges.some(({ tuple: [path] }) => dirpath.includes(path))
-    )
-
-    const processors = [].concat(
-      merges.map(({ tuple }) => tuple),
-      [['.', { svg: inkscape('pdf', { area }) }]]
-    )
-
-    const after = () => Promise.all(
-      merges.map(({ after }) => after())
-    )
-
-    return { put: pdfdir, out: outdir, clean: true, ignored, processors, after }
-  }
-
-}
-
-const [key, queries] = process.env.CHIN_ENV.split(':')
+const commands = process.env.CHIN_ENV.split(',')
 
 export default [
-  Object.assign(
-    { put, out },
-    configs[key](...(!queries ? [] : queries.split('&')))
-  )
-]
+
+  commands.includes('png') && {
+    put: `${put}/png`,
+    out: `${out}/png`,
+    processors: { svg: pngWhiteExt }
+  },
+
+  commands.includes('png:trans') && {
+    put: `${put}/png`,
+    out: `${out}/png.trans`,
+    clean: true,
+    processors: { svg: pngTransExt }
+  },
+
+  commands.includes('both') && {
+    put: `${put}/both`,
+    out: `${out}/png`,
+    processors: { svg: pngWhiteExt }
+  },
+
+  commands.includes('both:pdf') && {
+    put: `${put}/both`,
+    out: `${out}/pdf`,
+    processors: { svg: pdfExt }
+  },
+
+  commands.includes('pdf') && {
+    put: `${put}/pdf`,
+    out: `${out}/pdf`,
+    processors: [].concat(
+      merges.map(({ dirname, ext }) =>
+        [`merge/${dirname}`, { svg: ext }]
+      ),
+      [ ['*', { svg: pdfExt }] ]
+    ),
+    after: () =>
+      Promise.all(merges.map(({ dirname, dist }) =>
+        dist(`${out}/pdf/${dirname}.pdf`)
+      ))
+  },
+
+  commands.includes('print') && {
+    put: `${put}/pdf`,
+    out: `${out}/pdf.print`,
+    clean: true,
+    ignored: [
+      `${put}/pdf/recruit.svg`,
+      `${put}/pdf/term.svg`,
+      `${put}/pdf/vaccination.svg`,
+      `${put}/pdf/merge/recruit`,
+      `${put}/pdf/merge/summer`
+    ],
+    processors: [].concat(
+      pringMerges.map(({ dirname, ext }) =>
+        [`merge/${dirname}`, { svg: ext }]
+      ),
+      [ ['*', { svg: printExt }] ]
+    ),
+    after: () =>
+      Promise.all(pringMerges.map(({ dirname, dist }) =>
+        dist(`${out}/pdf.print/${dirname}.pdf`)
+      ))
+  }
+
+].filter(config => config)
