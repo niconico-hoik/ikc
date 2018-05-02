@@ -28,38 +28,36 @@ const sort = (filepaths) =>
 const configs = {
 
   'PNG': (query) => Object.assign(
-    {
-      ignored: [
-        `${put}/both`,
-        `${put}/pdf`
-      ]
-    },
+    { put: `${put}/png` },
     query === 'TRANS'
     ? {
-      out: `${out}/trans`,
+      out: `${out}/png.trans`,
+      clean: true,
       processors: { svg: inkscape('png', { dpi }) }
     }
     : {
-      out: `${out}/white`,
+      out: `${out}/png`,
       processors: { svg: inkscape('png', { dpi, background: '#ffffff' }) }
     }
   ),
 
-  'BOTH': (query) => ({
-    ignored: [
-      `${put}/pdf`,
-      `${put}/png`
-    ],
-    processors: {
-      svg: inkscape(...(
-        query === 'PDF'
-        ? ['pdf', { dpi }]
-        : ['png', { dpi, background: '#ffffff' }]
-      ))
+  'BOTH': (query) => Object.assign(
+    { put: `${put}/both` },
+    query === 'PDF'
+    ? {
+      out: `${out}/pdf`,
+      processors: { svg: inkscape('pdf', { dpi })}
     }
-  }),
+    : {
+      out: `${out}/png`,
+      processors: { svg: inkscape('png', { dpi, background: '#ffffff' }) }
+    }
+  ),
 
   'PDF': () => {
+
+    const putdir = `${put}/pdf`
+    const outdir = `${out}/pdf`
 
     const merges = [
       'pamphlet',
@@ -68,15 +66,10 @@ const configs = {
     ]
     .map(dirname => {
       const { ext, dist } = inkscapePdfMerge()
-      const tuple = [`pdf/merge/${dirname}`, { svg: ext }]
-      const after = () => dist(`${out}/pdf/${dirname}.pdf`, { sort })
+      const tuple = [`merge/${dirname}`, { svg: ext }]
+      const after = () => dist(`${outdir}/${dirname}.pdf`, { sort })
       return { tuple, after }
     })
-
-    const ignored = [
-      `${put}/both`,
-      `${put}/png`
-    ]
 
     const processors = [].concat(
       merges.map(({ tuple }) => tuple),
@@ -87,14 +80,14 @@ const configs = {
       merges.map(({ after }) => after())
     )
 
-    return { ignored, processors, after }
+    return { put: putdir, out: outdir, processors, after }
   },
 
   'PRINT': () => {
 
     const area = 'drawing'
     const pdfdir = `${put}/pdf`
-    const outdir = `${out}/print`
+    const outdir = `${out}/pdf.print`
 
     const merges = [
       'pamphlet'
