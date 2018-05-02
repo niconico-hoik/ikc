@@ -637,18 +637,18 @@ chalk@^2.0.1, chalk@^2.1.0, chalk@^2.3.2, chalk@^2.4.1:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-chin-plugin-inkscape@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/chin-plugin-inkscape/-/chin-plugin-inkscape-0.0.2.tgz#b7860f03458dc4f3ad3fc26ed97390e176ddefc7"
+chin-plugin-inkscape@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/chin-plugin-inkscape/-/chin-plugin-inkscape-0.0.3.tgz#c8c5fb79b6be724240e2c340bbbb53465e493b37"
   dependencies:
     fs-extra "^4.0.3"
     inkscape "^1.2.0"
     param-case "^2.1.1"
     pdf-merge "^1.0.2"
 
-chin@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/chin/-/chin-3.0.1.tgz#e798e89f2f54972bd4421b2d04f0df643a9d9a4a"
+chin@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/chin/-/chin-3.0.2.tgz#c868a37433ffa0b750edc4b74707a9d86494c59b"
   dependencies:
     app-root-path "^2.0.1"
     chalk "^2.4.1"

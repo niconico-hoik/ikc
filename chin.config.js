@@ -126,7 +126,9 @@ const configs = {
 
 const [key, queries] = process.env.CHIN_ENV.split(':')
 
-export default Object.assign(
-  { put, out },
-  configs[key](...(!queries ? [] : queries.split('&')))
-)
+export default [
+  Object.assign(
+    { put, out },
+    configs[key](...(!queries ? [] : queries.split('&')))
+  )
+]
