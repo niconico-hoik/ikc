@@ -1,30 +1,11 @@
-import { inkscape, inkscapePdfMerge } from 'chin-plugin-inkscape'
+import { inkscape, inkscapeMergePdfs } from 'chin-plugin-inkscape'
 import { join, parse, format } from 'path'
 
-const put = 'source'
-const out = '.dist'
-const dpi = 192
-
-const pngWhiteExt = inkscape('png', { dpi, background: '#ffffff' })
-const pngTransExt = inkscape('png', { dpi })
-const pdfExt = inkscape('pdf')
-const printExt = inkscape('pdf', { area: 'drawing' })
-
-const merges = [
-  'pamphlet',
-  'recruit',
-  'summer'
-]
-.map(dirname =>
-  Object.assign({ dirname }, inkscapePdfMerge())
-)
-
-const pringMerges = [
-  'pamphlet'
-]
-.map(dirname =>
-  Object.assign({ dirname }, inkscapePdfMerge({ area: 'drawing' }))
-)
+const createMerges = (dirnames, opts) =>
+  dirnames.map(dirname => [
+    dirname,
+    inkscapeMergePdfs(opts)
+  ])
 
 const parseExBase = (filepath) => {
   const { root, dir, name, ext } = parse(filepath)
@@ -45,6 +26,28 @@ const sort = (filepaths) =>
     )
   })
   .map(format)
+
+const put = 'source'
+const out = '.dist'
+const dpi = 192
+
+const pngWhiteExt = inkscape('png', { dpi, background: '#ffffff' })
+const pngTransExt = inkscape('png', { dpi })
+const pdfExt = inkscape('pdf')
+const printExt = inkscape('pdf', { area: 'drawing' })
+
+const merges = createMerges([
+  'pamphlet',
+  'recruit',
+  'summer'
+])
+
+const printMerges = createMerges([
+  'pamphlet'
+],
+{
+  area: 'drawing'
+})
 
 const commands = process.env.CHIN_ENV.split(',')
 
@@ -79,14 +82,14 @@ export default [
     put: `${put}/pdf`,
     out: `${out}/pdf`,
     processors: [].concat(
-      merges.map(({ dirname, ext }) =>
+      merges.map(([dirname,ext]) =>
         [`merge/${dirname}`, { svg: ext }]
       ),
       [ ['*', { svg: pdfExt }] ]
     ),
     after: () =>
-      Promise.all(merges.map(({ dirname, dist }) =>
-        dist(`${out}/pdf/${dirname}.pdf`)
+      Promise.all(merges.map(([dirname,ext]) =>
+        ext.after(`${out}/pdf/${dirname}.pdf`)
       ))
   },
 
@@ -102,15 +105,17 @@ export default [
       `${put}/pdf/merge/summer`
     ],
     processors: [].concat(
-      pringMerges.map(({ dirname, ext }) =>
+      printMerges.map(([dirname,ext]) =>
         [`merge/${dirname}`, { svg: ext }]
       ),
       [ ['*', { svg: printExt }] ]
     ),
     after: () =>
-      Promise.all(pringMerges.map(({ dirname, dist }) =>
-        dist(`${out}/pdf.print/${dirname}.pdf`)
-      ))
+      Promise.all(
+        printMerges.map(([dirname,ext]) =>
+          ext.after(`${out}/pdf.print/${dirname}.pdf`)
+        )
+      )
   }
 
 ].filter(config => config)
