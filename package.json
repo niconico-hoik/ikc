@@ -1,21 +1,18 @@
 {
   "license": "MIT",
   "scripts": {
-    "build": "chin -c -r babel-register",
-    "png": "cross-env CHIN_ENV=png yarn build",
-    "png:trans": "cross-env CHIN_ENV=png:trans yarn build",
-    "both": "cross-env CHIN_ENV=both yarn build",
-    "both:pdf": "cross-env CHIN_ENV=both:pdf yarn build",
-    "pdf": "cross-env CHIN_ENV=pdf yarn build",
-    "print": "cross-env CHIN_ENV=print yarn build",
-    "all": "cross-env CHIN_ENV=png,png:trans,both,both:pdf,pdf,print yarn build"
+    "white": "chin -c -r babel-register",
+    "trans": "chin -c -r babel-register",
+    "both:g": "chin -c -r babel-register",
+    "both:d": "chin -c -r babel-register",
+    "pdf": "chin -c -r babel-register",
+    "print": "chin -c -r babel-register",
+    "all": "chin -c -r babel-register"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
-    "chin": "^3.0.2",
-    "chin-plugin-inkscape": "^0.0.4",
-    "cross-env": "^5.1.4",
-    "npm-run-all": "^4.1.2"
+    "chin": "^3.0.6",
+    "chin-plugin-inkscape": "^0.0.6"
   }
 }
