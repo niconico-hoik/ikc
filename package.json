@@ -1,12 +1,16 @@
 {
   "license": "MIT",
   "scripts": {
-    "white": "chin -c -r babel-register",
-    "trans": "chin -c -r babel-register",
-    "both:g": "chin -c -r babel-register",
-    "both:d": "chin -c -r babel-register",
+    "png:whi": "chin -c -r babel-register",
+    "png:tra": "chin -c -r babel-register",
+    "pdf:doc": "chin -c -r babel-register",
+    "pdf:mrg": "chin -c -r babel-register",
+    "pdf:prt": "chin -c -r babel-register",
+    "both:parm": "chin -c -r babel-register",
+    "both:temp": "chin -c -r babel-register",
+    "png": "chin -c -r babel-register",
     "pdf": "chin -c -r babel-register",
-    "print": "chin -c -r babel-register",
+    "both": "chin -c -r babel-register",
     "all": "chin -c -r babel-register"
   },
   "devDependencies": {

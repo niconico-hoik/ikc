@@ -1,124 +1,132 @@
 import { inkscape, inkscapeMergePdfs } from 'chin-plugin-inkscape'
 import { join, parse, format } from 'path'
 
-const createMerges = ({ dir, options }) => dir.map(dirname => [dirname, inkscapeMergePdfs(options)])
-
-const parseExBase = (filepath) => {
-  const { root, dir, name, ext } = parse(filepath)
-  return { root, dir, name, ext }
-}
-
-const sort = (filepaths) =>
-  filepaths
-  .map(parseExBase)
-  .sort((a, b) => {
-    const anum = +a.name
-    const bnum = +b.name
-    return (
-      anum === NaN ? 1 :
-      anum < bnum ? -1 :
-      anum > bnum ? 1 :
-      0
-    )
-  })
-  .map(format)
-
-const put = 'source'
-const out = '.dist'
 const dpi = 192
+const ign = { processor: () => undefined }
 
-const ink2white = inkscape('png', { dpi, background: '#ffffff' })
-
-const ink2trans = inkscape('png', { dpi })
-
-const ink2pdf = inkscape('pdf')
-
-const ink2print = inkscape('pdf', { area: 'drawing' })
-
-const dir2merges = createMerges({
-  dir: [
+const whi = inkscape('png', { dpi, background: '#ffffff' })
+const tra = inkscape('png', { dpi })
+const pdf = inkscape('pdf')
+const prt = inkscape('pdf', { area: 'drawing' })
+const merges = dirs2merges({
+  dirs: [
     'pamphlet',
-    'recruit',
-    'summer'
+    'window.recruit',
+    'window.summer'
+  ]
+})
+const printMerges = dirs2merges({
+  options: { area: 'drawing' },
+  dirs: [
+    'pamphlet'
   ]
 })
 
-const dir2printmerges = createMerges({
-  dir: [
-    'pamphlet'
-  ],
-  options: { area: 'drawing' }
-})
-
 const configs = {
-
-  'white': {
-    put: `${put}/png`,
-    out: `${out}/png`,
-    processors: { svg: ink2white }
+  'png:whi': {
+    put: 'png',
+    out: '.dist/png',
+    processors: { svg: whi }
   },
-
-  'trans': {
-    put: `${put}/png`,
-    out: `${out}/png.trans`,
-    clean: true,
-    processors: { svg: ink2trans }
+  'png:tra': {
+    put: 'png',
+    out: '.dist/png.tra',
+    processors: { svg: tra }
   },
-
-  'both:g': {
-    put: `${put}/both`,
-    out: `${out}/png`,
-    processors: { svg: ink2white }
+  'pdf:doc': {
+    put: 'pdf.doc',
+    out: '.dist/pdf',
+    processors: { svg: pdf }
   },
-
-  'both:d': {
-    put: `${put}/both`,
-    out: `${out}/pdf`,
-    processors: { svg: ink2pdf }
-  },
-
-  'pdf': {
-    put: `${put}/pdf`,
-    out: `${out}/pdf`,
-    processors: [].concat(
-      dir2merges.map(([dirname,ext]) => [`merge/${dirname}`, { svg: ext }]),
-      [ ['*', { svg: ink2pdf }] ]
-    ),
+  'pdf:mrg': {
+    put: 'pdf.mrg',
+    out: '.dist/pdf',
+    processors: merges,
     after: () =>
-      Promise.all(dir2merges.map(([dirname,ext]) =>
-        ext.after(`${out}/pdf/${dirname}.pdf`)
+    Promise.all(merges.map(([ dir, processors ]) =>
+      processors.svg.after(`.dist/pdf/${dir}.pdf`, { sort: mergesSort })
+    ))
+  },
+  'pdf:prt': [
+    { put: 'pdf.prt', out: '.dist/pdf', processors: { svg: pdf } },
+    { put: 'pdf.prt', out: '.dist/pdf.prt', processors: { svg: prt } },
+    {
+      put: 'pdf.mrg',
+      out: '.dist/pdf.prt',
+      processors: [].concat(printMerges, [ ['*', { svg: ign }] ]),
+      after: () =>
+      Promise.all(printMerges.map(([ dir, processors ]) =>
+        processors.svg.after(`.dist/pdf.prt/${dir}.pdf`, { sort: mergesSort })
       ))
+    }
+  ],
+  'both:parm': [
+    { out: '.dist/png', processors: { svg: whi } },
+    { out: '.dist/pdf', processors: { svg: pdf } }
+  ].map(config =>
+    Object.assign(config, { put: 'both.parm' })
+  ),
+  'both:temp': [
+    { out: '.dist/png', processors: { svg: whi } },
+    { out: '.dist/pdf', processors: { svg: pdf } }
+  ].map(config =>
+    Object.assign(config, { put: 'both.temp' })
+  ),
+  png() {
+    return [
+      this['png:whi'],
+      this['png:tra']
+    ]
   },
-
-  'print': {
-    put: `${put}/pdf`,
-    out: `${out}/pdf.print`,
-    clean: true,
-    ignored: [
-      `${put}/pdf/recruit.svg`,
-      `${put}/pdf/term.svg`,
-      `${put}/pdf/vaccination.svg`,
-      `${put}/pdf/merge/recruit`,
-      `${put}/pdf/merge/summer`
-    ],
-    processors: [].concat(
-      dir2printmerges.map(([dirname,ext]) => [`merge/${dirname}`, { svg: ext }]),
-      [ ['*', { svg: ink2print }] ]
-    ),
-    after: () =>
-      Promise.all(
-        dir2printmerges.map(([dirname,ext]) =>
-          ext.after(`${out}/pdf.print/${dirname}.pdf`)
-        )
-      )
+  pdf() {
+    return [].concat(
+      [this['pdf:doc'], this['pdf:mrg']],
+      this['pdf:prt']
+    )
   },
-
+  both() {
+    return [].concat(
+      this['both:parm'],
+      this['both:temp']
+    )
+  },
   all() {
-    return Object.values(this).filter(config => typeof config === 'object')
+    return [].concat(
+      this.png(),
+      this.pdf(),
+      this.both()
+    )
   }
-
 }
 
 const command = process.env.npm_lifecycle_event
 const config = typeof configs[command] === 'function' ? configs[command]() : configs[command]
 export default config
+
+
+function dirs2merges({ prefix = './', options, dirs }) {
+  return dirs.map(dir => [join(prefix, dir), { svg: inkscapeMergePdfs(options) }])
+}
+
+function parseXbase(filepath) {
+  const { root, dir, name, ext } = parse(filepath)
+  return { root, dir, name, ext }
+}
+
+function mergesSort(filepaths) {
+  return (
+    filepaths
+    .map(parseXbase)
+    .sort((a, b) => {
+      const anum = +a.name
+      const bnum = +b.name
+      return (
+        anum === NaN ? 1 :
+        anum < bnum ? -1 :
+        anum > bnum ? 1 :
+        0
+      )
+    })
+    .map(format)
+  )
+}
