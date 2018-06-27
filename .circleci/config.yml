@@ -3,7 +3,9 @@ jobs:
   build:
     docker:
       - image: circleci/node:8
-      - image: johnodon/inkscape
+      # - image: flungo/inkscape
+      # - image: johnodon/inkscape
+      - image: harmish/inkscape
     working_directory: ~/repo
     steps:
       - checkout
