@@ -3,19 +3,23 @@
   "scripts": {
     "png:whi": "chin -c -r babel-register",
     "png:tra": "chin -c -r babel-register",
+    "png": "chin -c -r babel-register",
+    "both:parm:png": "chin -c -r babel-register",
+    "both:parm:pdf": "chin -c -r babel-register",
+    "both:temp:png": "chin -c -r babel-register",
+    "both:temp:pdf": "chin -c -r babel-register",
+    "both:parm": "chin -c -r babel-register",
+    "both:temp": "chin -c -r babel-register",
+    "both": "chin -c -r babel-register",
     "pdf:doc": "chin -c -r babel-register",
     "pdf:mrg": "chin -c -r babel-register",
     "pdf:prt": "chin -c -r babel-register",
-    "both:parm": "chin -c -r babel-register",
-    "both:temp": "chin -c -r babel-register",
-    "png": "chin -c -r babel-register",
     "pdf": "chin -c -r babel-register",
-    "both": "chin -c -r babel-register",
     "all": "chin -c -r babel-register",
     "gd:zip": "dtz .dist -o .dist.zip",
     "gd:auth": "node -r dotenv/config gd.auth.js",
     "gd:post": "node -r dotenv/config gd.post.js",
-    "release": "run-s all gd:zip gd:post"
+    "gd": "run-s all gd:zip gd:post"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",

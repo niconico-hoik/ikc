@@ -23,80 +23,53 @@ const printMerges = dirs2merges({
 })
 
 const configs = {
-  'png:whi': {
-    put: 'png',
-    out: '.dist/png',
-    processors: { svg: whi }
-  },
-  'png:tra': {
-    put: 'png',
-    out: '.dist/png.tra',
-    processors: { svg: tra }
-  },
-  'pdf:doc': {
-    put: 'pdf.doc',
-    out: '.dist/pdf',
-    processors: { svg: pdf }
-  },
+  /* png */
+  'png:whi': { put: 'png', out: '.dist/png', processors: { svg: whi } },
+  'png:tra': { put: 'png', out: '.dist/png/transparent', processors: { svg: tra } },
+  'png': function() { return [ this['png:whi'], this['png:tra'] ] },
+
+  /* both */
+  'both:parm:png': { put: 'both.parm', out: '.dist/png', processors: { svg: whi } },
+  'both:parm:pdf': { put: 'both.parm', out: '.dist/pdf', processors: { svg: pdf } },
+  'both:temp:png': { put: 'both.temp', out: '.dist/png', processors: { svg: whi } },
+  'both:temp:pdf': { put: 'both.temp', out: '.dist/pdf', processors: { svg: pdf } },
+  'both:parm': function(){ return [ this['both:parm:png'], this['both:parm:pdf'] ] },
+  'both:temp': function(){ return [ this['both:temp:png'], this['both:temp:pdf'] ] },
+  'both': function() { return [].concat(this['both:parm'](), this['both:temp']()) },
+
+  /* pdf */
+  'pdf:doc': { put: 'pdf.doc', out: '.dist/pdf', processors: { svg: pdf } },
   'pdf:mrg': {
     put: 'pdf.mrg',
     out: '.dist/pdf',
     processors: merges,
     after: () =>
-    Promise.all(merges.map(([ dir, processors ]) =>
-      processors.svg.after(`.dist/pdf/${dir}.pdf`, { sort: mergesSort })
+    Promise.all(merges.map(([ dir, { svg } ]) =>
+      svg.after(
+        `.dist/pdf/${dir}.pdf`,
+        { sort: mergesSort }
+      )
     ))
   },
   'pdf:prt': [
     { put: 'pdf.prt', out: '.dist/pdf', processors: { svg: pdf } },
-    { put: 'pdf.prt', out: '.dist/pdf.prt', processors: { svg: prt } },
-    {
-      put: 'pdf.mrg',
-      out: '.dist/pdf.prt',
+    { put: 'pdf.prt', out: '.dist/pdf.raksul', processors: { svg: prt } },
+    { put: 'pdf.mrg',
+      out: '.dist/pdf.raksul',
       processors: [].concat(printMerges, [ ['*', { svg: ign }] ]),
       after: () =>
-      Promise.all(printMerges.map(([ dir, processors ]) =>
-        processors.svg.after(`.dist/pdf.prt/${dir}.pdf`, { sort: mergesSort })
+      Promise.all(printMerges.map(([ dir, { svg } ]) =>
+        svg.after(
+          `.dist/pdf.raksul/${dir}.pdf`,
+          { sort: mergesSort }
+        )
       ))
     }
   ],
-  'both:parm': [
-    { out: '.dist/png', processors: { svg: whi } },
-    { out: '.dist/pdf', processors: { svg: pdf } }
-  ].map(config =>
-    Object.assign(config, { put: 'both.parm' })
-  ),
-  'both:temp': [
-    { out: '.dist/png', processors: { svg: whi } },
-    { out: '.dist/pdf', processors: { svg: pdf } }
-  ].map(config =>
-    Object.assign(config, { put: 'both.temp' })
-  ),
-  png() {
-    return [
-      this['png:whi'],
-      this['png:tra']
-    ]
-  },
-  pdf() {
-    return [].concat(
-      [this['pdf:doc'], this['pdf:mrg']],
-      this['pdf:prt']
-    )
-  },
-  both() {
-    return [].concat(
-      this['both:parm'],
-      this['both:temp']
-    )
-  },
-  all() {
-    return [].concat(
-      this.png(),
-      this.pdf(),
-      this.both()
-    )
-  }
+  'pdf': function() { return [].concat( [ this['pdf:doc'], this['pdf:mrg'] ], this['pdf:prt']) },
+
+  /* all */
+  'all': function() { return [].concat(this.png(), this.pdf(), this.both()) }
 }
 
 const command = process.env.npm_lifecycle_event
