@@ -1,13 +1,16 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/repo
+    environment:
+      # PATH: /usr/bin/inkscape:$PATH
+      BASH_ENV: ~/.bashrc
     docker:
       - image: circleci/node:8
       # - image: flungo/inkscape
-      # - image: johnodon/inkscape
+      - image: johnodon/inkscape
       # - image: harmish/inkscape
-      - image: jess/inkscape
-    working_directory: ~/repo
+      # - image: jess/inkscape
     steps:
       - checkout
       - restore_cache:
@@ -19,8 +22,9 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
           paths:
             - node_modules
-      # - run: inkscape --help
-      - run: yarn all
+      - run: echo 'export PATH=/usr/bin/inkscape:$PATH' >> $BASH_ENV
+      - run: inkscape --help
+      # - run: yarn all
 workflows:
   version: 2
   build_if_deploy:
