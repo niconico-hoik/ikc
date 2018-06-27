@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  create:
+  build:
     docker:
       - image: circleci/node:8
       - image: flungo/inkscape
@@ -17,6 +17,11 @@ jobs:
           paths:
             - node_modules
       - run: inkscape --help
+workflows:
+  version: 2
+  build_if_deploy:
+    jobs:
+      - build
 # workflows:
 #   version: 2
 #   build_if_deploy:
