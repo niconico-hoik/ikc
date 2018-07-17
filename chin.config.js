@@ -52,6 +52,7 @@ const configs = {
     ))
   },
   'pdf:prt': [
+    { put: 'pdf.prt', out: '.dist/png', processors: { svg: whi } },
     { put: 'pdf.prt', out: '.dist/pdf', processors: { svg: pdf } },
     { put: 'pdf.prt', out: '.dist/pdf.raksul', processors: { svg: prt } },
     { put: 'pdf.mrg',
@@ -68,8 +69,12 @@ const configs = {
   ],
   'pdf': function() { return [].concat( [ this['pdf:doc'], this['pdf:mrg'] ], this['pdf:prt']) },
 
+  'ss': { put: '.noink/spreadsheet', out: '.dist/pdf' },
+
   /* all */
-  'all': function() { return [].concat(this.png(), this.pdf(), this.both()) }
+  'all': function() {
+    return [].concat(this.png(), this.both(), this.pdf(), [ this['ss'] ])
+  }
 }
 
 const command = process.env.npm_lifecycle_event

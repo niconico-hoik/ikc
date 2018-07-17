@@ -657,9 +657,9 @@ chin-plugin-inkscape@^0.0.6:
     param-case "^2.1.1"
     pdf-merge "^1.0.2"
 
-chin@^3.0.6:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/chin/-/chin-3.0.6.tgz#038023f6308328ac94b14ea2dd4335f6ae083f9d"
+chin@^3.0.11:
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/chin/-/chin-3.0.11.tgz#addf9a9ee38f143464f76751c78172548afb3a2e"
   dependencies:
     app-root-path "^2.0.1"
     chalk "^2.4.1"
