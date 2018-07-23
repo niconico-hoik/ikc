@@ -26,7 +26,7 @@
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
-    "chin": "^3.0.11",
+    "chin": "^3.1.1",
     "chin-plugin-inkscape": "^0.0.6",
     "dotenv": "^6.0.0",
     "dtz": "^1.0.2",
