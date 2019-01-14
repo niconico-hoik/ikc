@@ -12,7 +12,8 @@ const merges = dirs2merges({
   dirs: [
     'pamphlet',
     'window.recruit',
-    'window.summer'
+    'window.summer',
+    '2019.calendar.weekend',
   ]
 })
 const printMerges = dirs2merges({
